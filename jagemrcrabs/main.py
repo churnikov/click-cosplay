@@ -14,6 +14,7 @@ async def process_image(image):
 with gr.Blocks() as demo:
     images = gr.State([])
     image = gr.Image(sources=["upload", "clipboard"], type="filepath")
+    examples = gr.Examples("./examples", image)
     submit_btn = gr.Button("Submit")
     submit_btn.click(process_image, [image], images)
 

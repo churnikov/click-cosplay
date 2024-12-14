@@ -7,7 +7,7 @@ from footway_integration import process_image as pr_img
 async def process_image(image):
     output = dict()
     for res in await pr_img(image):
-        output[res.body_part] = [o.image_url for o in res.items]
+        output[res.body_part] = [o.image_url for o in res.items if o.image_url]
     return [output]
 
 

@@ -2,13 +2,13 @@ import asyncio
 
 import gradio as gr
 
+from footway_integration import process_image as pr_img
+
 async def process_image(image):
-    await asyncio.sleep(1)
-    return [{
-        "1": [image, image, image],
-        "2": [image, image, image],
-        "3": [image, image, image],
-    }]
+    output = dict()
+    for res in await pr_img(image):
+        output[res.body_part] = [o.image_url for o in res.items]
+    return [output]
 
 
 with gr.Blocks() as demo:

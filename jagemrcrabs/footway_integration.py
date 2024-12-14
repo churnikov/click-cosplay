@@ -81,6 +81,38 @@ async def search_inventory(footway_input_list: list[ip.FootwayInput], body_parts
     return await fetch_all(FOOTWAY_PLUS_API, params)
 
 
+async def process_image(image_path: str) -> list[FootwayResponse]:
+    description_ = ip.describe_image(image_path)
+    print(f"Image description: {description_}")
+    footway_inputs = []
+    # body_parts = []
+    #
+    # for item in description_:
+    #     footway_input = ip.convert_description_to_footway_input(item)
+    #     footway_inputs.append(footway_input)
+    #     body_parts.append(item.body_part)
+    #     print(f"Raw item description: {item}")
+    #     print(f"Footway input: {footway_input}")
+
+    body_parts = ["upper body", "neck", "torso", "full_body"]
+
+    footway_inputs = [
+        ip.FootwayInput(vendors="None", departments="None", product_groups='Hoodies & Sweaters',
+                        product_types='Apparels'),
+        ip.FootwayInput(vendors="None", departments="None", product_groups='Other Accessories',
+                        product_types='Apparels'),
+        ip.FootwayInput(vendors="None", departments="None", product_groups='Shirts', product_types='Apparels'),
+        ip.FootwayInput(vendors="None", departments="None", product_groups='Cardigan', product_types='Apparels'),
+    ]
+
+    results = await search_inventory(footway_inputs, body_parts)
+    for result in results:
+        print(len(result.items))
+    pprint(results)
+    return results
+
+
+
 async def main():
     image_path = "examples/malfoy.jpeg"
     description_ = ip.describe_image(image_path)

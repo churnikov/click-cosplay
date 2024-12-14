@@ -17,7 +17,7 @@ class RoomDescription(BaseModel):
 
 async def main():
     # Don't forget to set the API key as the OPPER_API_KEY environment variable!
-    opper = AsyncOpper(api_key=settings.opper_api_key.get_secret_value())
+    opper = AsyncOpper(api_key=settings.opper_api_key)
 
     # Make a call
     result, _ = await opper.call(

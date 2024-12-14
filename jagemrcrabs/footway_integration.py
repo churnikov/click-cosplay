@@ -2,9 +2,10 @@ import asyncio
 from pprint import pprint
 
 import aiohttp
+from pydantic import BaseModel
+
 import image_processing as ip
 from jagemrcrabs.settings import settings
-from pydantic import BaseModel
 
 
 class FootwayItem(BaseModel):
@@ -26,10 +27,12 @@ class FootwayItem(BaseModel):
 
 class FootwayResponse(BaseModel):
     items: list[FootwayItem]
+    body_part: str
 
 
 async def fetch(url, session, params=None) -> FootwayResponse:
     # Perform an HTTP GET request with query parameters
+    body_part = params.pop("bodyPart")
     async with session.get(url, params=params, headers={"X-API-KEY": settings.footway_api_key}) as response:
         json = await response.json()
         items = []
@@ -47,7 +50,8 @@ async def fetch(url, session, params=None) -> FootwayResponse:
                 )
             )
         response = FootwayResponse(
-            items=items
+            items=items,
+            body_part= body_part
         )
         return response
 
@@ -63,14 +67,15 @@ async def fetch_all(url, params_list):
 FOOTWAY_PLUS_API = "https://api.footwayplus.com/v1/inventory/search"
 
 
-async def search_inventory(footway_input_list: list[ip.FootwayInput]) -> [FootwayResponse]:
+async def search_inventory(footway_input_list: list[ip.FootwayInput], body_parts: list[str]) -> [FootwayResponse]:
     params = []
-    for footway_input in footway_input_list:
+    for i, footway_input in enumerate(footway_input_list):
         params.append(
             {
                 "department": footway_input.departments if footway_input.departments != "None" else "",
                 "productGroup": footway_input.product_groups,
                 "productType": footway_input.product_types,
+                "bodyPart": body_parts[i],
             }
         )
     return await fetch_all(FOOTWAY_PLUS_API, params)
@@ -81,12 +86,17 @@ async def main():
     description_ = ip.describe_image(image_path)
     print(f"Image description: {description_}")
     footway_inputs = []
+    body_parts = []
+
     for item in description_:
         footway_input = ip.convert_description_to_footway_input(item)
         footway_inputs.append(footway_input)
+        body_parts.append(item.body_part)
         print(f"Raw item description: {item}")
         print(f"Footway input: {footway_input}")
 
+    # body_parts = ["upper body", "neck", "torso", "full_body"]
+    #
     # footway_inputs = [
     #     ip.FootwayInput(vendors="None", departments="None", product_groups='Hoodies & Sweaters',
     #                     product_types='Apparels'),
@@ -96,7 +106,7 @@ async def main():
     #     ip.FootwayInput(vendors="None", departments="None", product_groups='Cardigan', product_types='Apparels'),
     # ]
 
-    results = await search_inventory(footway_inputs)
+    results = await search_inventory(footway_inputs, body_parts)
     for result in results:
         print(len(result.items))
     pprint(results)

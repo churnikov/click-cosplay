@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "jagemrcrabs"
+version = "0.1.0"
+description = ""
+authors = ["Nikita Churikov <nikita@chur.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+opperai = "^0.26.1"
+pydantic = "^2.10.3"
+pydantic-settings = "^2.7.0"
+loguru = "^0.7.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
